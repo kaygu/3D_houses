@@ -13,6 +13,7 @@ class SplitGeoTiff(Thread):
         self.out_path: str = output.format(type)
         self.out_file: str = "tile_"
         self.nb_files: int = nb_files + 1
+        self.tiles: dict = {'tile': [], 'X': [], 'Y': []}
 
     def run(self):
         cpt=0
@@ -31,11 +32,15 @@ class SplitGeoTiff(Thread):
             tile_size_y = 500
 
             ds = gdal.Open(in_path + in_file)
+            coords = ds.GetGeoTransform()
             band = ds.GetRasterBand(1)
             xsize = band.XSize
             ysize = band.YSize
             for i in range(0, xsize, tile_size_x):
                 for j in range(0, ysize, tile_size_y):
-                    cpt+=1
+                    cpt += 1
+                    self.tiles['tile'].append(cpt)
+                    self.tiles['X'].append(coords[0] + i)
+                    self.tiles['Y'].append(coords[3] - j)
                     cmd_str = f'gdal_translate -of GTIFF -srcwin {i}, {j}, {tile_size_x}, {tile_size_y} {in_path + in_file} {self.out_path + self.out_file + str(cpt)}.tif > logs_{self.type}.log'
                     os.system(cmd_str)
