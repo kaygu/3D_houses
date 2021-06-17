@@ -1,11 +1,12 @@
 import os
 from osgeo import gdal
 from threading import Thread
+from typing  import List, Dict, Union
 
 
 class SplitGeoTiff(Thread):
     '''Split big geoTIFFs files in shorter ones. Folders must be unziped first'''
-    def __init__(self, type: str, nb_files: int, input: str = './data/{}/', output: str = './data/{}_split/'):
+    def __init__(self, type: str = 'DSM', nb_files: int = 43, input: str = './data/{}/', output: str = './data/{}_split/'):
         Thread.__init__(self)
         self.type: str = type
         self.in_path: str = f"{input.format(type)}/DHMVII{type}RAS1m_k"
@@ -13,7 +14,7 @@ class SplitGeoTiff(Thread):
         self.out_path: str = output.format(type)
         self.out_file: str = "tile_"
         self.nb_files: int = nb_files + 1
-        self.tiles: dict = {'tile': [], 'X': [], 'Y': []}
+        self.tiles: Dict[str, Union[List[int], List[float]]] = {'tile': [], 'X': [], 'Y': []}
 
     def run(self):
         cpt=0
