@@ -3,10 +3,13 @@ from utils.polygonRequest import PolygonRequest
 
 polygonRequest = PolygonRequest()
 XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
+#XTarget, YTarget, polygon = polygonRequest.getJsonInfo(street='Schoenmarkt', houseNumb='35')
 
 polygonCutter = PolygonCutter()
-array_chm = polygonCutter.CutPolygonFromArrayGDALds(XTarget, YTarget, polygon)
+
+# This function get the tile number
+tileNumber = polygonCutter.getTileNumber(XTarget, YTarget)
+print(tileNumber)
+array_chm = polygonCutter.CutPolygonFromArrayGDALds(polygon, tileNumber)
 
 
-#XTarget > XupperLeft and XTarget < XupperLeft+1000
-#YTarget > YupperLeft-500 and YTarget < YupperLeft

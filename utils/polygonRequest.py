@@ -10,8 +10,9 @@ class PolygonRequest():
     polygon_format = '&format=jsonv2&polygon_geojson=1'
     API_url = 'https://nominatim.openstreetmap.org/search?q='
 
-    def getJsonInfo(self, street: str = 'Nollekensstraat', HouseNumb: str = '15') -> Union[float, float, Dict]:
-        url = self.API_url + street +  '+' + HouseNumb + self.polygon_format
+    def getJsonInfo(self, street: str = 'Nollekensstraat', houseNumb: str = '15') -> Union[float, float, Dict]:
+        street.replace(' ', '+')
+        url = self.API_url + street + '+' + houseNumb + self.polygon_format
         response = requests.get(url)
 
         print(response.text)
@@ -39,3 +40,4 @@ class PolygonRequest():
         outProj = Proj(init='epsg:31370')
         XTarget, YTarget = transform(inProj, outProj, lon, lat)
         return XTarget, YTarget
+

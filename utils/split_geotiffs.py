@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from osgeo import gdal
 from threading import Thread
 from typing import List, Dict, Union
@@ -45,3 +46,4 @@ class SplitGeoTiff(Thread):
                     self.tiles['Y'].append(coords[3] - j)
                     cmd_str = f'gdal_translate -of GTIFF -srcwin {i}, {j}, {tile_size_x}, {tile_size_y} {in_path + in_file} {self.out_path + self.out_file + str(cpt)}.tif > logs_{self.type}.log'
                     os.system(cmd_str)
+
