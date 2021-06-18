@@ -12,12 +12,11 @@ class PolygonRequest():
 
     def getJsonInfo(self, street: str = 'Nollekensstraat', HouseNumb: str = '15') -> Union[float, float, Dict]:
         url = self.API_url + street +  '+' + HouseNumb + self.polygon_format
-        print(url)
         response = requests.get(url)
 
         print(response.text)
         json_data = json.loads(response.text)
-        polygon = json_data[1]['geojson']
+        polygon = json_data[0]['geojson']
 
         # Transforming the spherical coordinates of the house to Lambert 72
         lon, lat = json_data[0]['lon'], json_data[0]['lat']
@@ -25,7 +24,6 @@ class PolygonRequest():
 
         # Transforming the spherical coordinates of the polygon to Lambert 72
         for i in range(len(polygon['coordinates'][0])):
-            print(i)
             lon, lat = polygon['coordinates'][0][i]
             polygon['coordinates'][0][i] = self.transformToLambert(lon, lat)
 

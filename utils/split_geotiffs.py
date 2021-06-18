@@ -1,7 +1,7 @@
 import os
 from osgeo import gdal
 from threading import Thread
-from typing  import List, Dict, Union
+from typing import List, Dict, Union
 
 
 class SplitGeoTiff(Thread):
