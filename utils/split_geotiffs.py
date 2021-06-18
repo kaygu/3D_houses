@@ -1,47 +1,68 @@
 import os
 from osgeo import gdal
-from threading import Thread
-from typing  import List, Dict, Union
+import pandas as pd
+from typing  import List, Dict, Union, Tuple
 
 
-class SplitGeoTiff(Thread):
-    '''Split big geoTIFFs files in shorter ones. Folders must be unziped first'''
-    def __init__(self, type: str = 'DSM', nb_files: int = 43, input: str = './data/{}/', output: str = './data/{}_split/'):
-        Thread.__init__(self)
-        self.type: str = type
-        self.in_path: str = f"{input.format(type)}/DHMVII{type}RAS1m_k"
-        self.in_file: str = f"DHMVII{type}RAS1m_k"
-        self.out_path: str = output.format(type)
-        self.out_file: str = "tile_"
-        self.nb_files: int = nb_files + 1
-        self.tiles: Dict[str, Union[List[int], List[float]]] = {'tile': [], 'X': [], 'Y': []}
-
-    def run(self):
-        cpt=0
-        for x in range(1, self.nb_files):
-            if x < 10:
-                tile = f"0{x}"
-            else :
-                tile = str(x)
-            print(f"Getting {self.type} map n°{tile}, total tiles : {cpt}")   
-
-
-            in_path = self.in_path + tile + '/GeoTIFF/'
-            in_file = self.in_file + tile + ".tif"
-
-            tile_size_x = 1000
-            tile_size_y = 500
-
-            ds = gdal.Open(in_path + in_file)
+def parse_geotiffs(input: str = './data/{}/') -> pd.DataFrame:
+    """
+    Cycle through every DTM tif files to count how much tiles you have in total
+    :arg input_path: Path where your data is stored. './data/{}/' by default.
+    :return: dataframe containing all the tiles available
+    """
+    input_path = input.format('DTM')
+    tiles: Dict[str, Union[List[int], List[float], Tuple[int, int]]] = {
+        'tile_nb': [],
+        'X': [],
+        'Y': [],
+        'origin_file': [],
+        'img_pos': [],
+        'img_size': []}
+    dirs = os.listdir(input_path)
+    count = 0
+    tile_size_x = 1000
+    tile_size_y = 500
+    for file in dirs:
+        try:
+            ds = gdal.Open(f'{input_path}{file}/GeoTIFF/{file}.tif')
             coords = ds.GetGeoTransform()
             band = ds.GetRasterBand(1)
-            xsize = band.XSize
-            ysize = band.YSize
-            for i in range(0, xsize, tile_size_x):
-                for j in range(0, ysize, tile_size_y):
-                    cpt += 1
-                    self.tiles['tile'].append(cpt)
-                    self.tiles['X'].append(coords[0] + i)
-                    self.tiles['Y'].append(coords[3] - j)
-                    cmd_str = f'gdal_translate -of GTIFF -srcwin {i}, {j}, {tile_size_x}, {tile_size_y} {in_path + in_file} {self.out_path + self.out_file + str(cpt)}.tif > logs_{self.type}.log'
-                    os.system(cmd_str)
+        except:
+            print(f"Something went wrong reading {file}")
+            raise
+        
+        xsize = band.XSize
+        ysize = band.YSize
+        for i in range(0, xsize, tile_size_x):
+            for j in range(0, ysize, tile_size_y):
+                count += 1
+                tiles['tile_nb'].append(count)
+                tiles['X'].append(coords[0] + i)
+                tiles['Y'].append(coords[3] - j)
+                    
+                tiles['origin_file'].append(file.replace('DTM', '{}')) # Replace DTM with {} to be able to format the string later while splitting the tiles
+                tiles['img_pos'].append((i, j))
+                tiles['img_size'].append((tile_size_x, tile_size_y))
+
+    df = pd.DataFrame(tiles)
+    df.set_index("tile_nb", inplace=True)
+    df.to_csv('tiles.csv')
+    return df
+
+def split_tiles(ser: pd.Series, input: str = './data/{}/', output: str = './data/{}_split/'):
+    """
+    Split specific tile from the big geoTIFF files
+    :arg ser: Pandas Series containing all the informations
+    :return: True if success, False if failure
+    """
+    tile_nb: int = ser.name
+    tile_pos:tuple = ser['img_pos']
+    tile_size:tuple = ser['img_size']
+    origin:str = ser['origin_file']
+
+    for types in ('DTM', 'DSM'):
+        input_path = f'{input.format(types)}{origin.format(types)}/GeoTIFF/{origin.format(types)}.tif'
+        output_path = f'{output.format(types)}tile_{tile_nb}.tif'
+        cmd_str = f'gdal_translate -of GTIFF -srcwin {tile_pos[0]}, {tile_pos[1]}, {tile_size[0]}, {tile_size[1]} {input_path} {output_path}'
+        os.system(cmd_str)
+    

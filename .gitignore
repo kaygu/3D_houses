@@ -1,12 +1,14 @@
 # virtual env
 .env/
 env/
+venv/
 
 # python files
 __pycache__/
 
 # data
 data/
+assets/
 *.csv
 
 *.log
