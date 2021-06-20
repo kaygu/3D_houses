@@ -1,13 +1,14 @@
 import numpy as np
+import pandas as pd
 from PIL import Image, ImageDraw
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from osgeo import gdal
+
 
 class PolygonCutter:
 
-    def CutPolygonFromArrayGDALds(self, XTarget, YTarget, polygon):
-
-        XupperLeft, YupperLeft, array_chm = self.getCHMfromGDAL()
+    def CutPolygonFromArrayGDALds(self, polygon, tileNumber):
+        XupperLeft, YupperLeft, array_chm = self.getCHMfromGDAL(tileNumber)
         xx = [i[0] - XupperLeft for i in polygon['coordinates'][0][:]]
         yy = [YupperLeft - i[1] for i in polygon['coordinates'][0][:]]
 
@@ -17,8 +18,8 @@ class PolygonCutter:
         ImageDraw.Draw(maskIm).polygon(coordinates, outline=1, fill=1)
         mask = np.array(maskIm)
 
-        #black = Image.new('L', (array_chm.shape[1], array_chm.shape[0]), 0)
-        #result = Image.composite(array_chm, black, mask)
+        # black = Image.new('L', (array_chm.shape[1], array_chm.shape[0]), 0)
+        # result = Image.composite(array_chm, black, mask)
 
         array_chm_cut = np.where((mask == 1), array_chm, 0)
 
@@ -34,10 +35,10 @@ class PolygonCutter:
 
         return array_chm
 
-
-    def getCHMfromGDAL(self, DSM_tile='assets/DSM_split/tile_212.tif', DTM_tile='assets/DTM_split/tile_212.tif'):
-        ds_dsm = gdal.Open(DSM_tile)
-        ds_dtm = gdal.Open(DTM_tile)
+    @staticmethod
+    def getCHMfromGDAL(tileNumber):
+        ds_dsm = gdal.Open('assets/DSM_split/tile_' + str(tileNumber) + '.tif')
+        ds_dtm = gdal.Open('assets/DTM_split/tile_' + str(tileNumber) + '.tif')
 
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
@@ -64,7 +65,15 @@ class PolygonCutter:
 
         return XupperLeft, YupperLeft, array_chm
 
-    def resizeMaskedArray(self, array_chm_cut):
+    @staticmethod
+    def resizeMaskedArray(array_chm_cut):
         data = array_chm_cut[~np.all(array_chm_cut == 0, axis=1)]
         idx = np.argwhere(np.all(data[..., :] == 0, axis=0))
         return np.delete(data, idx, axis=1)
+
+    @staticmethod
+    def getTileNumber(XTarget, YTarget):
+        tiles = pd.read_csv('assets/tiles.csv')
+        tile = tiles[(XTarget > tiles['X']) & (XTarget < tiles['X'] + 1000)]
+        tile = tile[(YTarget > tile['Y'] - 500) & (YTarget < tile['Y'])]
+        return tile['tile'].iloc[0]
