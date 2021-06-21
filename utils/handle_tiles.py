@@ -2,7 +2,7 @@ import os
 from osgeo import gdal
 import pandas as pd
 import re
-from typing  import List, Dict, Union, Tuple
+from typing import List, Dict, Union, Tuple
 
 
 def parse_geotiffs(path: str = './data/{}/') -> pd.DataFrame:

@@ -3,23 +3,39 @@ import pandas as pd
 from PIL import Image, ImageDraw
 from matplotlib import pyplot as plt
 from osgeo import gdal
+from typing import Dict, List
 
 
 class PolygonCutter:
 
-    def CutPolygonFromArrayGDALds(self, polygon, tileNumber):
-        XupperLeft, YupperLeft, array_chm = self.getCHMfromGDAL(tileNumber)
+    def CutPolygonFromArrayGDALds(self, polygon: Dict, tileNumber: int) -> np.ndarray:
+        """
+        This method gets the need tiles to calculate the chm, make the binary
+        mask and get only and array with the data of only the desired building
+        and return it
+        :param polygon: This is a dictionary that contains the polygon of the building
+        :param tileNumber: This is the number fo the tile we need to get the CHM
+        :return: array with the data of the calculated CHM for the building
+        """
+
+        # We call the function which will give us the necessary CHM and limits info
+        XupperLeft, YupperLeft, array_chm = self.getCHMFromGDAL(tileNumber)
+
+        # We create a new list of coordinates from our polygon
         xx = [i[0] - XupperLeft for i in polygon['coordinates'][0][:]]
         yy = [YupperLeft - i[1] for i in polygon['coordinates'][0][:]]
 
         coordinates = list(zip(xx, yy))
 
+        # We create a binary mask based on the polygon
         maskIm = Image.new('L', (array_chm.shape[1], array_chm.shape[0]), 0)
         ImageDraw.Draw(maskIm).polygon(coordinates, outline=1, fill=1)
         mask = np.array(maskIm)
 
+        # Then we filter our CHM based on the binary mask
         array_chm_cut = np.where((mask == 1), array_chm, 0)
 
+        # Resize the function cutting the array at the the size of the polygon
         array_chm = self.resizeMaskedArray(array_chm_cut)
 
         plt.figure()
@@ -32,10 +48,21 @@ class PolygonCutter:
         plt.title('CHM Filtered and cut for the desired building')
         plt.show()
 
+        print(type(array_chm))
+
         return array_chm
 
     @staticmethod
-    def getCHMfromGDAL(tileNumber=212):
+    def getCHMFromGDAL(tileNumber: int = 212):
+        """
+        This method open the respective tif to the tile Number and return the
+        CHM array with the respective Upper Left Lambert coordinates
+
+        :param tileNumber: It's the number of the tile were the building is
+        located. Calculated by handle.tiles.get_tile
+        :return: CHM array with the respective Upper Left Lambert coordinates
+        """
+        # We open the respective tif files
         print('Opening tiles DSM and DTM number:', tileNumber)
         ds_dsm = gdal.Open('data/DSM_split/tile_' + str(tileNumber) + '.tif')
         ds_dtm = gdal.Open('data/DTM_split/tile_' + str(tileNumber) + '.tif')
@@ -68,14 +95,15 @@ class PolygonCutter:
         return XupperLeft, YupperLeft, array_chm
 
     @staticmethod
-    def resizeMaskedArray(array_chm_cut):
+    def resizeMaskedArray(array_chm_cut: np.ndarray):
+        """
+        This method resize the numpy array by deleting all the empty
+        columns and rows
+
+        :param array_chm_cut: CHM numpy array filtered with mask
+        :return: cut CHM numpy array
+        """
         data = array_chm_cut[~np.all(array_chm_cut == 0, axis=1)]
         idx = np.argwhere(np.all(data[..., :] == 0, axis=0))
         return np.delete(data, idx, axis=1)
 
-    @staticmethod
-    def getTileNumber(XTarget, YTarget):
-        tiles = pd.read_csv('data/tiles.csv')
-        tile = tiles[(XTarget > tiles['X']) & (XTarget < tiles['X'] + 1000)]
-        tile = tile[(YTarget > tile['Y'] - 500) & (YTarget < tile['Y'])]
-        return tile['tile'].iloc[0]

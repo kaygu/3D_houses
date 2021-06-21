@@ -13,19 +13,19 @@ if __name__ == "__main__":
     tiles = parse_geotiffs(path=DATA_PATH)
 
     polygonRequest = PolygonRequest()
-    XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
-    # XTarget, YTarget, polygon = polygonRequest.getJsonInfo(street='Schoenmarkt', houseNumb='35')
-
     polygonCutter = PolygonCutter()
 
-    # Main loop
+    # We do the request of the address of the building we want to visualize
+    # Nollekensstraat 15 as default address located into the split tile 212
+    XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
+
+    # XTarget, YTarget, polygon = polygonRequest.getJsonInfo(street='Schoenmarkt', houseNumb='35')
+
+    # We get the tile corresponding to the coordinates
     tile = get_tile(tiles, (XTarget, YTarget))
     split_tile(tile, input=DATA_PATH, output=TILES_PATH)
 
-    polygonCutter = PolygonCutter()
-
-    # This function get the tile number
-    #tileNumber = polygonCutter.getTileNumber(XTarget, YTarget)
+    # Now we gate the CHM array corresponding at the polygon and the tile number
     array_chm = polygonCutter.CutPolygonFromArrayGDALds(polygon, tile.name)
 
     # Clean tile files after execution
