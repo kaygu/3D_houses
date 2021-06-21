@@ -47,9 +47,7 @@ class PolygonCutter:
         plt.imshow(array_chm)
         plt.title('CHM Filtered and cut for the desired building')
         plt.show()
-
-        print(type(array_chm))
-
+        
         return array_chm
 
     @staticmethod
