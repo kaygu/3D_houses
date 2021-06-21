@@ -9,7 +9,4 @@ polygonCutter = PolygonCutter()
 
 # This function get the tile number
 tileNumber = polygonCutter.getTileNumber(XTarget, YTarget)
-print(tileNumber)
 array_chm = polygonCutter.CutPolygonFromArrayGDALds(polygon, tileNumber)
-
-

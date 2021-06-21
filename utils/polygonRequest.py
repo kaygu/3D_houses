@@ -3,10 +3,10 @@ from typing import Union, Dict
 
 import requests
 import matplotlib.pyplot as plt
-from pyproj import Proj, transform
+from pyproj import Proj, transform, Transformer
 
 
-class PolygonRequest():
+class PolygonRequest:
     polygon_format = '&format=jsonv2&polygon_geojson=1'
     API_url = 'https://nominatim.openstreetmap.org/search?q='
 
@@ -15,7 +15,6 @@ class PolygonRequest():
         url = self.API_url + street + '+' + houseNumb + self.polygon_format
         response = requests.get(url)
 
-        print(response.text)
         json_data = json.loads(response.text)
         polygon = json_data[0]['geojson']
 
@@ -31,13 +30,14 @@ class PolygonRequest():
         x = [i[0] for i in polygon['coordinates'][0][:]]
         y = [i[1] for i in polygon['coordinates'][0][:]]
         plt.plot(x, y)
+        plt.title('Polygon for ' + street + ' ' + houseNumb)
         plt.show()
 
         return XTarget, YTarget, polygon
 
     def transformToLambert(self, lon: float, lat: float) -> Union[float, float]:
-        inProj = Proj(init='epsg:4326')
-        outProj = Proj(init='epsg:31370')
-        XTarget, YTarget = transform(inProj, outProj, lon, lat)
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:31370", always_xy=True)
+        XTarget, YTarget = transformer.transform(lon, lat)
+        print('Transforming Lat:', lat, ' Lon:', lon, 'to Lambert 72 x:', XTarget,' y:', YTarget)
         return XTarget, YTarget
 
