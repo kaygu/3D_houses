@@ -1,16 +1,17 @@
 # virtual env
+.idea/
+.idea
 .venv/
 venv/
 .env/
 env/
-.idea/
-.idea
 
 # python files
 __pycache__/
 
 # data
 data/
+assets/
 *.csv
 
 *.log

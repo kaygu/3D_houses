@@ -37,8 +37,8 @@ class PolygonCutter:
     @staticmethod
     def getCHMfromGDAL(tileNumber=212):
         print('Opening tiles DSM and DTM number:', tileNumber)
-        ds_dsm = gdal.Open('assets/DSM_split/tile_' + str(tileNumber) + '.tif')
-        ds_dtm = gdal.Open('assets/DTM_split/tile_' + str(tileNumber) + '.tif')
+        ds_dsm = gdal.Open('data/DSM_split/tile_' + str(tileNumber) + '.tif')
+        ds_dtm = gdal.Open('data/DTM_split/tile_' + str(tileNumber) + '.tif')
 
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
@@ -75,7 +75,7 @@ class PolygonCutter:
 
     @staticmethod
     def getTileNumber(XTarget, YTarget):
-        tiles = pd.read_csv('assets/tiles.csv')
+        tiles = pd.read_csv('data/tiles.csv')
         tile = tiles[(XTarget > tiles['X']) & (XTarget < tiles['X'] + 1000)]
         tile = tile[(YTarget > tile['Y'] - 500) & (YTarget < tile['Y'])]
         return tile['tile'].iloc[0]
