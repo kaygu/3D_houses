@@ -1,5 +1,6 @@
 from utils.polygonCutter import PolygonCutter
 from utils.polygonRequest import PolygonRequest
+from utils.plotter import Plotter
 from utils.handle_tiles import parse_geotiffs, split_tile, get_tile, check_tiff_files, clean_tiles
 
 # {} = 'DTM' or 'DSM'
@@ -30,3 +31,8 @@ if __name__ == "__main__":
 
     # Clean tile files after execution
     clean_tiles(tiles_path= TILES_PATH)
+
+    # plot chm
+    plotter = Plotter(array_chm)
+    plotter.createPlot()
+
