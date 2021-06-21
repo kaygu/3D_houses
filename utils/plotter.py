@@ -4,10 +4,12 @@ from typing import Tuple
 
 
 class Plotter:
-    '''
-    expects canopy height model to plot
-    '''
     def __init__(self, array_chm: np.ndarray) -> None:
+        '''
+        expects canopy height model to plot
+        
+        :param array_chm: chm in ndarray format
+        '''
         self.array_chm = array_chm
 
     def createMesh(self, array_chm: np.ndarray) -> Tuple:
