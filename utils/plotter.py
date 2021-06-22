@@ -32,7 +32,7 @@ class Plotter:
         # creates the plot based on the mesh created and shows that
         grid = self.createMesh(self.array_chm)
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        ax.plot_surface(grid[0], grid[1], self.array_chm, cmap='viridis')
+        ax.plot_surface(grid[0], grid[1], self.array_chm,  rstride=1, cstride=1, cmap='viridis')
 
         # display it from certain angle
         ax.view_init(30, 135)

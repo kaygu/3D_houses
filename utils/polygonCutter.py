@@ -38,20 +38,19 @@ class PolygonCutter:
         # Resize the function cutting the array at the the size of the polygon
         array_chm = self.resizeMaskedArray(array_chm_cut)
 
-        plt.figure()
+        plt.figure(5)
         plt.imshow(mask)
         plt.title('Binary Mask')
-        plt.show()
 
-        plt.figure()
+        plt.figure(6)
         plt.imshow(array_chm)
         plt.title('CHM Filtered and cut for the desired building')
-        plt.show()
-        
+
+
         return array_chm
 
     @staticmethod
-    def getCHMFromGDAL(tileNumber: int = 212):
+    def getCHMFromGDAL(tileNumber: int):
         """
         This method open the respective tif to the tile Number and return the
         CHM array with the respective Upper Left Lambert coordinates
@@ -68,14 +67,14 @@ class PolygonCutter:
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
         array_dtm = ds_dtm.GetRasterBand(1).ReadAsArray().astype(np.float32)
-        plt.figure()
+        plt.figure(2)
         plt.imshow(array_dtm)
         plt.title('Digital Terrain Model')
-        plt.show()
-        plt.figure()
+
+        plt.figure(3)
         plt.imshow(array_dsm)
         plt.title('Digital Surface Model')
-        plt.show()
+
         # Getting the geotransformations
         gt_dsm = ds_dsm.GetGeoTransform()
         gt_dtm = ds_dtm.GetGeoTransform()
@@ -85,10 +84,10 @@ class PolygonCutter:
         # We create the canopy height model subtracting the other two
         array_chm = array_dsm - array_dtm
 
-        plt.figure()
+        plt.figure(4)
         plt.imshow(array_chm)
         plt.title('Canopy Height Model')
-        plt.show()
+
 
         return XupperLeft, YupperLeft, array_chm
 
