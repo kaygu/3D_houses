@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from PIL import Image, ImageDraw
 from matplotlib import pyplot as plt
 from osgeo import gdal
@@ -7,6 +6,8 @@ from typing import Dict, List
 
 
 class PolygonCutter:
+    def __init__(self, tile_path: str = './data/{}_split/'):
+        self.tile_path: str = tile_path
 
     def CutPolygonFromArrayGDALds(self, polygon: Dict, tileNumber: int) -> np.ndarray:
         """
@@ -19,7 +20,7 @@ class PolygonCutter:
         """
 
         # We call the function which will give us the necessary CHM and limits info
-        XupperLeft, YupperLeft, array_chm = self.getCHMFromGDAL(tileNumber)
+        XupperLeft, YupperLeft, array_chm = self.getCHMFromGDAL(tileNumber, self.tile_path)
 
         # We create a new list of coordinates from our polygon
         xx = [i[0] - XupperLeft for i in polygon['coordinates'][0][:]]
@@ -50,19 +51,20 @@ class PolygonCutter:
         return array_chm
 
     @staticmethod
-    def getCHMFromGDAL(tileNumber: int):
+    def getCHMFromGDAL(tileNumber: int, tile_path: str = './data/{}_split/'):
         """
         This method open the respective tif to the tile Number and return the
         CHM array with the respective Upper Left Lambert coordinates
 
         :param tileNumber: It's the number of the tile were the building is
         located. Calculated by handle.tiles.get_tile
+        :param tile_path: Set folder path for the tile files
         :return: CHM array with the respective Upper Left Lambert coordinates
         """
         # We open the respective tif files
         print('Opening tiles DSM and DTM number:', tileNumber)
-        ds_dsm = gdal.Open('data/DSM_split/tile_' + str(tileNumber) + '.tif')
-        ds_dtm = gdal.Open('data/DTM_split/tile_' + str(tileNumber) + '.tif')
+        ds_dsm = gdal.Open(f'{tile_path.format("DSM")}tile_{str(tileNumber)}.tif')
+        ds_dtm = gdal.Open(f'{tile_path.format("DTM")}tile_{str(tileNumber)}.tif')
 
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
