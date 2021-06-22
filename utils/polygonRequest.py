@@ -1,8 +1,9 @@
 import json
-from typing import Union, Dict
-
+import re
 import requests
 import matplotlib.pyplot as plt
+
+from typing import Union, Dict
 from pyproj import Proj, transform, Transformer
 
 
@@ -15,17 +16,43 @@ class PolygonRequest:
     polygon_format = '&format=jsonv2&polygon_geojson=1'
     API_url = 'https://nominatim.openstreetmap.org/search?q='
 
-    def getJsonInfo(self, street: str = 'Grens straat', houseNumb: str = '4', postalCode: str = '2910', comune: str = 'Essen') -> Union[float, float, Dict]:
+    def getJsonInfo(self) -> Union[float, float, Dict]:
         """
         This method will request the coordinates x and y, and
          the polygon of the entered address; convert them into
          Lambert 72 coordinates and then return their values.
 
-        :param street: The name of the street to look for
-        :param houseNumb: The number of the building to look for
         :return: It return the Lambert coordinates XTarget and YTarget
          of the building and the respective polygon
         """
+
+        # We do the request of the address of the building we want to visualize
+        # Nollekensstraat 15 as default address located into the split tile 212
+
+        print('Please enter the address of the building to plot...')
+        while True:
+            street = input('Street name: ')
+            if re.match(r'^[a-zA-Z\s]+$', street):
+                break
+            print('Please enter a only letters street name')
+
+        while True:
+            houseNumb = input('Number: ')
+            if re.match(r'^[0-9]+$', houseNumb):
+                break
+            print('Please enter only numbers')
+
+        while True:
+            postalCode = input('PostalCode: ')
+            if re.match(r'^[0-9]+$', postalCode):
+                break
+            print('Please enter only numbers')
+
+        while True:
+            comune = input('Comune: ')
+            if re.match(r'^[a-zA-Z\s]+$', comune):
+                break
+            print('Please enter only numbers')
 
         # We create the url for the API request
         url = self.API_url + street + '+' + houseNumb  + ',' + postalCode  + '+' + comune + self.polygon_format
