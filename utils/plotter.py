@@ -6,19 +6,21 @@ from typing import Tuple
 class Plotter:
     def __init__(self, array_chm: np.ndarray) -> None:
         '''
-        expects canopy height model to plot
+        expects and initializes with canopy height model to plot. 
+        then it plots in 3d
         
         :param array_chm: chm in ndarray format
         '''
-        self.array_chm = array_chm
+        self.pad_width = 5
+        self.array_chm = self.addPadding(array_chm)
 
-    def addPadding(array_chm: np.ndarray):
-        array_chm = np.pad(array_chm, pad_width=1, mode='constant', constant_values=0)
+    def addPadding(self, array_chm: np.ndarray) -> np.ndarray:
+        # add padding around the shape to reduce deformations
+        array_chm = np.pad(array_chm, pad_width=self.pad_width, mode='constant', constant_values=0)
         return array_chm
 
     def createMesh(self, array_chm: np.ndarray) -> Tuple:
-        array_chm = self.addPadding(array_chm)
-        # we create a grid of same size where elevation data can map on
+        # create a grid of same size where elevation data can map on
         col = array_chm.shape[0]
         row = array_chm.shape[1]
         X = np.arange(row)
@@ -27,6 +29,7 @@ class Plotter:
         return tuple((X, Y))
 
     def createPlot(self) -> None:
+        # creates the plot based on the mesh created and shows that
         grid = self.createMesh(self.array_chm)
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         ax.plot_surface(grid[0], grid[1], self.array_chm, cmap='viridis')
