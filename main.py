@@ -1,3 +1,4 @@
+import re
 from utils.polygonCutter import PolygonCutter
 from utils.polygonRequest import PolygonRequest
 from utils.plotter import Plotter
@@ -18,7 +19,34 @@ if __name__ == "__main__":
 
     # We do the request of the address of the building we want to visualize
     # Nollekensstraat 15 as default address located into the split tile 212
-    XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
+
+    print('Please enter the address of the building to plot...')
+    while True:
+        street = input('Street name: ')
+        if re.match(r'^[a-zA-Z\s]+$', street):
+            break
+        print('Please enter a only letters street name')
+
+    while True:
+        number = input('Number: ')
+        if re.match(r'^[0-9]+$', number):
+            break
+        print('Please enter only numbers')
+
+    while True:
+        postalCode = input('PostalCode: ')
+        if re.match(r'^[0-9]+$', postalCode):
+            break
+        print('Please enter only numbers')
+
+    while True:
+        comune = input('Comune: ')
+        if re.match(r'^[a-zA-Z\s]+$', comune):
+            break
+        print('Please enter only numbers')
+
+
+    XTarget, YTarget, polygon = polygonRequest.getJsonInfo(street, number, postalCode, comune)
 
     # XTarget, YTarget, polygon = polygonRequest.getJsonInfo(street='Schoenmarkt', houseNumb='35')
 
