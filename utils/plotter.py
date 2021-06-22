@@ -12,7 +12,12 @@ class Plotter:
         '''
         self.array_chm = array_chm
 
+    def addPadding(array_chm: np.ndarray):
+        array_chm = np.pad(array_chm, pad_width=1, mode='constant', constant_values=0)
+        return array_chm
+
     def createMesh(self, array_chm: np.ndarray) -> Tuple:
+        array_chm = self.addPadding(array_chm)
         # we create a grid of same size where elevation data can map on
         col = array_chm.shape[0]
         row = array_chm.shape[1]
