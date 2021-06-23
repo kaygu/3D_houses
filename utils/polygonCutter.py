@@ -36,7 +36,7 @@ class PolygonCutter:
             FinalMask += mask
 
         # Then we filter our CHM based on the binary mask
-        array_chm_cut = np.where((FinalMask > 0), array_chm, 0)
+        array_chm_cut = np.where((FinalMask == 1), array_chm, 0)
 
         # Resize the function cutting the array at the the size of the polygon
         array_chm = self.resizeMaskedArray(array_chm_cut)
