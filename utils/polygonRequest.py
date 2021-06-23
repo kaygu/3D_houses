@@ -12,8 +12,8 @@ class PolygonRequest:
     done to the nominatim site. It will also transform the coordinates
     into the Lambert System
     """
-    API_url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&q='
 
+    address = ''
     # transformer class is instantiated only once
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:31370", always_xy=True)
 
@@ -30,19 +30,19 @@ class PolygonRequest:
 
         # We do the request of the address of the building we want to visualize
         # Nollekensstraat 15 as default address located into the split tile 212
-        street, houseNumb, postalCode, comune = getUserInput()
+        street, houseNumb, postalCode, commune, flagPlots = getUserInput()
+        self.address = f'{street} {houseNumb},{postalCode} {commune}'
 
         # We create the url for the API request
-        url = self.API_url + street + '+' + houseNumb  + ',' + postalCode  + '+' + comune
+        url = f'https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&q='
 
         try:
-            r = requests.get(url)
+            r = requests.get(url + self.address)
             r.raise_for_status()
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
 
         json_data = json.loads(r.text)
-        print(json_data)
 
         polygon = list()
 
@@ -54,7 +54,7 @@ class PolygonRequest:
 
         # We get the polygon of the building
         if len(polygon) == 0:
-            raise Exception('Sorry, polygon not found. Please check the address and try again')
+            raise Exception('Sorry, polygon or address not found. Please check the address and try again')
 
         # Transforming the spherical coordinates of the house to Lambert 72
         lon, lat = json_data[0]['lon'], json_data[0]['lat']
@@ -69,11 +69,12 @@ class PolygonRequest:
         y = [i[1] for i in polygon['coordinates'][0][:]]
 
         # We plot the polygon
-        plt.figure(1)
-        plt.plot(x, y)
-        plt.title('Polygon for ' + street + ' ' + houseNumb)
+        if(flagPlots):
+            plt.figure(1)
+            plt.plot(x, y)
+            plt.title('Polygon for ' + street + ' ' + houseNumb)
 
-        return XTarget, YTarget, polygon
+        return XTarget, YTarget, polygon, flagPlots
 
     def transformToLambert(self, lon: float, lat: float) -> Union[float, float]:
         """

@@ -9,7 +9,7 @@ TILES_PATH = './data/{}_split/'
 
 
 if __name__ == "__main__":
-    # Instanciate classes
+    # Instantiate classes
     tileManager = TileManager(DATA_PATH, TILES_PATH)
     polygonRequest = PolygonRequest()
     polygonCutter = PolygonCutter(TILES_PATH)
@@ -18,18 +18,20 @@ if __name__ == "__main__":
     tileManager.check_tiff_files()
     tiles = tileManager.parse_geotiffs()
 
-    XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
+    XTarget, YTarget, polygon, flagPlots = polygonRequest.getJsonInfo()
 
     # We get the tile corresponding to the coordinates
     tile = tileManager.get_tile(tiles, (XTarget, YTarget))
     tileManager.split_tile(tile)
+    
+    polygonCutter.flagPlots = flagPlots
 
     # Now we gate the CHM array corresponding at the polygon and the tile number
     array_chm = polygonCutter.CutPolygonFromArrayGDALds(polygon, tile.name)
 
     # Plot Canopy Height Model
     plotter = Plotter(array_chm)
-    plotter.createPlot()
+    plotter.createPlot(polygonRequest.address)
 
     # Clean tile files after execution
     tileManager.clean_tiles()
