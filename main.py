@@ -1,4 +1,3 @@
-import re
 from utils.polygonCutter import PolygonCutter
 from utils.polygonRequest import PolygonRequest
 from utils.plotter import Plotter
@@ -15,12 +14,9 @@ if __name__ == "__main__":
     tiles = parse_geotiffs(path=DATA_PATH)
 
     polygonRequest = PolygonRequest()
-    polygonCutter = PolygonCutter()
-
+    polygonCutter = PolygonCutter(TILES_PATH)
 
     XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
-
-    # XTarget, YTarget, polygon = polygonRequest.getJsonInfo(street='Schoenmarkt', houseNumb='35')
 
     # We get the tile corresponding to the coordinates
     tile = get_tile(tiles, (XTarget, YTarget))
@@ -29,10 +25,9 @@ if __name__ == "__main__":
     # Now we gate the CHM array corresponding at the polygon and the tile number
     array_chm = polygonCutter.CutPolygonFromArrayGDALds(polygon, tile.name)
 
-    # Clean tile files after execution
-    clean_tiles(tiles_path= TILES_PATH)
-
-    # plot chm
+    # Plot Canopy Height Model
     plotter = Plotter(array_chm)
     plotter.createPlot(polygonRequest.address)
 
+    # Clean tile files after execution
+    clean_tiles(tiles_path= TILES_PATH)
