@@ -34,5 +34,5 @@ if __name__ == "__main__":
 
     # plot chm
     plotter = Plotter(array_chm)
-    plotter.createPlot()
+    plotter.createPlot(polygonRequest.address)
 
