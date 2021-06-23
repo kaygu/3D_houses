@@ -23,33 +23,30 @@ class PolygonCutter:
         XupperLeft, YupperLeft, array_chm = self.getCHMFromGDAL(tileNumber, self.tile_path)
 
         # We create a new list of coordinates from our polygon
-        FinalMask = Image.new('L', (array_chm.shape[1], array_chm.shape[0]), 0)
-        for pol in polygon:
-            xx = [i[0] - XupperLeft for i in pol[:]]
-            yy = [YupperLeft - i[1] for i in pol[:]]
+        xx = [i[0] - XupperLeft for i in polygon['coordinates'][0][:]]
+        yy = [YupperLeft - i[1] for i in polygon['coordinates'][0][:]]
 
-            coordinates = list(zip(xx, yy))
+        coordinates = list(zip(xx, yy))
 
-            # We create a binary mask based on the polygon
-            maskIm = Image.new('L', (array_chm.shape[1], array_chm.shape[0]), 0)
-            ImageDraw.Draw(maskIm).polygon(coordinates, outline=1, fill=1)
-            mask = np.array(maskIm)
-            FinalMask += mask
+        # We create a binary mask based on the polygon
+        maskIm = Image.new('L', (array_chm.shape[1], array_chm.shape[0]), 0)
+        ImageDraw.Draw(maskIm).polygon(coordinates, outline=1, fill=1)
+        mask = np.array(maskIm)
 
         # Then we filter our CHM based on the binary mask
-        array_chm_cut = np.where((FinalMask == 1), array_chm, 0)
+        array_chm_cut = np.where((mask == 1), array_chm, 0)
 
         # Resize the function cutting the array at the the size of the polygon
         array_chm = self.resizeMaskedArray(array_chm_cut)
-        """
+
         plt.figure(5)
-        plt.imshow(FinalMask)
+        plt.imshow(mask)
         plt.title('Binary Mask')
 
         plt.figure(6)
         plt.imshow(array_chm)
         plt.title('CHM Filtered and cut for the desired building')
-        """
+
 
         return array_chm
 
@@ -72,7 +69,6 @@ class PolygonCutter:
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
         array_dtm = ds_dtm.GetRasterBand(1).ReadAsArray().astype(np.float32)
-        """
         plt.figure(2)
         plt.imshow(array_dtm)
         plt.title('Digital Terrain Model')
@@ -80,7 +76,7 @@ class PolygonCutter:
         plt.figure(3)
         plt.imshow(array_dsm)
         plt.title('Digital Surface Model')
-        """
+
         # Getting the geotransformations
         gt_dsm = ds_dsm.GetGeoTransform()
         gt_dtm = ds_dtm.GetGeoTransform()
@@ -89,11 +85,11 @@ class PolygonCutter:
 
         # We create the canopy height model subtracting the other two
         array_chm = array_dsm - array_dtm
-        """
+
         plt.figure(4)
         plt.imshow(array_chm)
         plt.title('Canopy Height Model')
-        """
+
 
         return XupperLeft, YupperLeft, array_chm
 

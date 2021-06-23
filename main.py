@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # Plot Canopy Height Model
     plotter = Plotter(array_chm)
-    plotter.createPlot(polygonRequest.address)
+    plotter.createPlot()
 
     # Clean tile files after execution
     clean_tiles(tiles_path= TILES_PATH)

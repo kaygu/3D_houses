@@ -28,13 +28,13 @@ class Plotter:
         X, Y = np.meshgrid(X, Y)
         return tuple((X, Y))
 
-    def createPlot(self, adressName: str) -> None:
+    def createPlot(self) -> None:
         # creates the plot based on the mesh created and shows that
-
         grid = self.createMesh(self.array_chm)
-        fig, ax = plt.subplots(nrows=1, ncols=1, subplot_kw=dict(projection='3d'))
-        surf = ax.plot_surface(grid[0], grid[1], self.array_chm, rstride=1, cstride=1, linewidth=0, antialiased=False, lw=0, cmap='viridis')
-        fig.colorbar(surf, ax=ax)
-        ax.set(title=adressName)
-        
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        ax.plot_surface(grid[0], grid[1], self.array_chm,  rstride=1, cstride=1, cmap='viridis')
+
+        # display it from certain angle
+        ax.view_init(30, 135)
+
         plt.show()
