@@ -1,4 +1,3 @@
-from matplotlib import pylab as pl
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Tuple
