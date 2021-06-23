@@ -21,7 +21,7 @@ class PolygonCutter:
         """
 
         # We call the function which will give us the necessary CHM and limits info
-        XupperLeft, YupperLeft, array_chm = self.getCHMFromGDAL(tileNumber, self.tile_path)
+        XupperLeft, YupperLeft, array_chm = self.getCHMFromGDAL(tileNumber)
 
         # We create a new list of coordinates from our polygon
         xx = [i[0] - XupperLeft for i in polygon['coordinates'][0][:]]
@@ -51,7 +51,7 @@ class PolygonCutter:
 
         return array_chm
 
-    def getCHMFromGDAL(self, tileNumber: int, tile_path: str = './data/{}_split/'):
+    def getCHMFromGDAL(self, tileNumber: int):
         """
         This method open the respective tif to the tile Number and return the
         CHM array with the respective Upper Left Lambert coordinates
@@ -63,8 +63,8 @@ class PolygonCutter:
         """
         # We open the respective tif files
         print('Opening tiles DSM and DTM number:', tileNumber)
-        ds_dsm = gdal.Open(f'{tile_path.format("DSM")}tile_{str(tileNumber)}.tif')
-        ds_dtm = gdal.Open(f'{tile_path.format("DTM")}tile_{str(tileNumber)}.tif')
+        ds_dsm = gdal.Open(f'{self.tile_path.format("DSM")}tile_{str(tileNumber)}.tif')
+        ds_dtm = gdal.Open(f'{self.tile_path.format("DTM")}tile_{str(tileNumber)}.tif')
 
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
