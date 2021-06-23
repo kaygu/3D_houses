@@ -1,11 +1,10 @@
 import json
-import re
 import requests
 import matplotlib.pyplot as plt
 
 from typing import Union, Dict
-from pyproj import Proj, transform, Transformer
-
+from pyproj import Transformer
+from utils.getUserInput import getUserInput
 
 class PolygonRequest:
     """
@@ -13,8 +12,11 @@ class PolygonRequest:
     done to the nominatim site. It will also transform the coordinates
     into the Lambert System
     """
-    polygon_format = '&format=jsonv2&polygon_geojson=1'
-    API_url = 'https://nominatim.openstreetmap.org/search?q='
+    API_url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&q='
+
+    # transformer class is instantiated only once
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:31370", always_xy=True)
+
 
     def getJsonInfo(self) -> Union[float, float, Dict]:
         """
@@ -28,34 +30,10 @@ class PolygonRequest:
 
         # We do the request of the address of the building we want to visualize
         # Nollekensstraat 15 as default address located into the split tile 212
-
-        print('Please enter the address of the building to plot...')
-        while True:
-            street = input('Street name: ')
-            if re.match(r'^[a-zA-Z\s]+$', street):
-                break
-            print('Please enter a only letters street name')
-
-        while True:
-            houseNumb = input('Number: ')
-            if re.match(r'^[0-9]+$', houseNumb):
-                break
-            print('Please enter only numbers')
-
-        while True:
-            postalCode = input('PostalCode: ')
-            if re.match(r'^[0-9]+$', postalCode):
-                break
-            print('Please enter only numbers')
-
-        while True:
-            comune = input('Comune: ')
-            if re.match(r'^[a-zA-Z\s]+$', comune):
-                break
-            print('Please enter only numbers')
+        street, houseNumb, postalCode, comune = getUserInput()
 
         # We create the url for the API request
-        url = self.API_url + street + '+' + houseNumb  + ',' + postalCode  + '+' + comune + self.polygon_format
+        url = self.API_url + street + '+' + houseNumb  + ',' + postalCode  + '+' + comune
 
         try:
             r = requests.get(url)
@@ -105,8 +83,7 @@ class PolygonRequest:
         :param lat: Latitude to convert
         :return: respective Lambert 72 coordinates XTarget, YTarget
         """
-        transformer = Transformer.from_crs("EPSG:4326", "EPSG:31370", always_xy=True)
-        XTarget, YTarget = transformer.transform(lon, lat)
+        XTarget, YTarget = self.transformer.transform(lon, lat)
         print('Transforming Lat:', lat, ' Lon:', lon, 'to Lambert 72 x:', XTarget,' y:', YTarget)
         return XTarget, YTarget
 
