@@ -7,6 +7,11 @@ from typing import List, Dict, Union, Tuple
 
 class TileManager:
     def __init__(self, data_path: str = './data/{}/', tile_path: str = './data/{}_split/'):
+        """
+        Manage map Tiles, from generation until deletion 
+        :param data_path: Path to the data folders, containing DTM & DSM .tif files
+        :param tile_path: Path to the tile folders, where generated files will be created
+        """
         self.data_path = data_path
         self.tile_path = tile_path
         self.csv_name = 'tiles.csv'
