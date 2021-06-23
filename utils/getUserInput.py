@@ -35,12 +35,22 @@ def getUserInput() -> Tuple:
         print('Please enter only numbers')
 
     while True:
-        comune = input('Comune: ')
-        if re.match(r'^[a-zA-Z\s]+$', comune):
+        commune = input('Commune: ')
+        if re.match(r'^[a-zA-Z\s]+$', commune):
             break
-        elif comune == '':
-            comune = 'Essen'
+        elif commune == '':
+            commune = 'Essen'
             break
-        print('Please enter only numbers')
+        print('Please enter only letters')
+    
+    while True:
+        flagPlots = input('Do you desire the detailed plot of the whole process? [Y] or [N]: ')
+        if flagPlots.lower() == 'y':
+            flagPlots = True
+            break
+        elif flagPlots.lower() == 'n':
+            flagPlots = False
+            break
+        print('Please enter a valid answer [Y] or [N]')
 
-    return tuple((street, houseNumb, postalCode, comune))
+    return tuple((street, houseNumb, postalCode, commune, flagPlots))

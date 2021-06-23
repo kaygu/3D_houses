@@ -8,6 +8,7 @@ from typing import Dict, List
 class PolygonCutter:
     def __init__(self, tile_path: str = './data/{}_split/'):
         self.tile_path: str = tile_path
+        self.flagPlots = True
 
     def CutPolygonFromArrayGDALds(self, polygon: Dict, tileNumber: int) -> np.ndarray:
         """
@@ -39,19 +40,18 @@ class PolygonCutter:
         # Resize the function cutting the array at the the size of the polygon
         array_chm = self.resizeMaskedArray(array_chm_cut)
 
-        plt.figure(5)
-        plt.imshow(mask)
-        plt.title('Binary Mask')
+        if self.flagPlots:
+            plt.figure(5)
+            plt.imshow(mask)
+            plt.title('Binary Mask')
 
-        plt.figure(6)
-        plt.imshow(array_chm)
-        plt.title('CHM Filtered and cut for the desired building')
-
+            plt.figure(6)
+            plt.imshow(array_chm)
+            plt.title('CHM Filtered and cut for the desired building')
 
         return array_chm
 
-    @staticmethod
-    def getCHMFromGDAL(tileNumber: int, tile_path: str = './data/{}_split/'):
+    def getCHMFromGDAL(self, tileNumber: int, tile_path: str = './data/{}_split/'):
         """
         This method open the respective tif to the tile Number and return the
         CHM array with the respective Upper Left Lambert coordinates
@@ -69,13 +69,6 @@ class PolygonCutter:
         # Reading the bands as matrices
         array_dsm = ds_dsm.GetRasterBand(1).ReadAsArray().astype(np.float32)
         array_dtm = ds_dtm.GetRasterBand(1).ReadAsArray().astype(np.float32)
-        plt.figure(2)
-        plt.imshow(array_dtm)
-        plt.title('Digital Terrain Model')
-
-        plt.figure(3)
-        plt.imshow(array_dsm)
-        plt.title('Digital Surface Model')
 
         # Getting the geotransformations
         gt_dsm = ds_dsm.GetGeoTransform()
@@ -86,10 +79,18 @@ class PolygonCutter:
         # We create the canopy height model subtracting the other two
         array_chm = array_dsm - array_dtm
 
-        plt.figure(4)
-        plt.imshow(array_chm)
-        plt.title('Canopy Height Model')
+        if self.flagPlots:
+            plt.figure(2)
+            plt.imshow(array_dtm)
+            plt.title('Digital Terrain Model')
 
+            plt.figure(3)
+            plt.imshow(array_dsm)
+            plt.title('Digital Surface Model')
+
+            plt.figure(4)
+            plt.imshow(array_chm)
+            plt.title('Canopy Height Model')
 
         return XupperLeft, YupperLeft, array_chm
 
@@ -105,4 +106,3 @@ class PolygonCutter:
         data = array_chm_cut[~np.all(array_chm_cut == 0, axis=1)]
         idx = np.argwhere(np.all(data[..., :] == 0, axis=0))
         return np.delete(data, idx, axis=1)
-
