@@ -1,7 +1,7 @@
 from utils.polygonCutter import PolygonCutter
 from utils.polygonRequest import PolygonRequest
 from utils.plotter import Plotter
-from utils.handle_tiles import parse_geotiffs, split_tile, get_tile, check_tiff_files, clean_tiles
+from utils.TileManager import TileManager
 
 # {} = 'DTM' or 'DSM'
 DATA_PATH = './data/{}/'
@@ -9,18 +9,20 @@ TILES_PATH = './data/{}_split/'
 
 
 if __name__ == "__main__":
-    # Check if all files needed exist before execution, then store every tiles info in DataFrame
-    check_tiff_files()
-    tiles = parse_geotiffs(path=DATA_PATH)
-
+    # Instanciate classes
+    tileManager = TileManager(DATA_PATH, TILES_PATH)
     polygonRequest = PolygonRequest()
     polygonCutter = PolygonCutter(TILES_PATH)
+
+    # Check if all files needed exist before execution, then store every tiles info in DataFrame
+    tileManager.check_tiff_files()
+    tiles = tileManager.parse_geotiffs()
 
     XTarget, YTarget, polygon = polygonRequest.getJsonInfo()
 
     # We get the tile corresponding to the coordinates
-    tile = get_tile(tiles, (XTarget, YTarget))
-    split_tile(tile, input=DATA_PATH, output=TILES_PATH)
+    tile = tileManager.get_tile(tiles, (XTarget, YTarget))
+    tileManager.split_tile(tile)
 
     # Now we gate the CHM array corresponding at the polygon and the tile number
     array_chm = polygonCutter.CutPolygonFromArrayGDALds(polygon, tile.name)
@@ -30,4 +32,4 @@ if __name__ == "__main__":
     plotter.createPlot()
 
     # Clean tile files after execution
-    clean_tiles(tiles_path= TILES_PATH)
+    tileManager.clean_tiles()
