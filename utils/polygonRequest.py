@@ -12,8 +12,7 @@ class PolygonRequest:
     done to the nominatim site. It will also transform the coordinates
     into the Lambert System
     """
-    polygon_format = '&format=jsonv2&polygon_geojson=1'
-    API_url = 'https://nominatim.openstreetmap.org/search?q='
+    API_url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&q='
 
     # transformer class is instantiated only once
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:31370", always_xy=True)
@@ -34,7 +33,7 @@ class PolygonRequest:
         street, houseNumb, postalCode, comune = getUserInput()
 
         # We create the url for the API request
-        url = self.API_url + street + '+' + houseNumb  + ',' + postalCode  + '+' + comune + self.polygon_format
+        url = self.API_url + street + '+' + houseNumb  + ',' + postalCode  + '+' + comune
 
         try:
             r = requests.get(url)
