@@ -85,6 +85,5 @@ class PolygonRequest:
         :return: respective Lambert 72 coordinates XTarget, YTarget
         """
         XTarget, YTarget = self.transformer.transform(lon, lat)
-        print('Transforming Lat:', lat, ' Lon:', lon, 'to Lambert 72 x:', XTarget,' y:', YTarget)
         return XTarget, YTarget
 
