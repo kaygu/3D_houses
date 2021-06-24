@@ -6,9 +6,11 @@ from typing import Dict, List
 
 
 class PolygonCutter:
+
     def __init__(self, tile_path: str = './data/{}_split/'):
         self.tile_path: str = tile_path
         self.flagPlots = True
+
 
     def CutPolygonFromArrayGDALds(self, polygon: Dict, tileNumber: int) -> np.ndarray:
         """

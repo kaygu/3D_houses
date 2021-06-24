@@ -2,6 +2,7 @@ from utils.polygonCutter import PolygonCutter
 from utils.polygonRequest import PolygonRequest
 from utils.plotter import Plotter
 from utils.TileManager import TileManager
+from utils.niceToHaveCalculator import NiceToHaveCalculator
 
 # {} = 'DTM' or 'DSM'
 DATA_PATH = './data/{}/'
@@ -32,6 +33,10 @@ if __name__ == "__main__":
     # Plot Canopy Height Model
     plotter = Plotter(array_chm)
     plotter.createPlot(polygonRequest.address)
+
+    niceToHaveCalculator = NiceToHaveCalculator()
+    niceToHaveCalculator.area(polygon)
+    niceToHaveCalculator.floorsCount(array_chm)
 
     # Clean tile files after execution
     tileManager.clean_tiles()
