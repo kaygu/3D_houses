@@ -24,6 +24,9 @@ pipwin install -r requirements.txt
 python3 main.py
 ```
 
+## How it works
+![3dhouses (5)](https://user-images.githubusercontent.com/50581015/123280735-51479600-d509-11eb-841e-a063cc10c205.png)
+
 ## Contributors
 
 [Jesus Bueno](https://github.com/jejobueno)\
